@@ -142,7 +142,7 @@ class Profile extends GetView<ProfileController> {
                       child: Obx(() => ListView.builder(
                           scrollDirection: Axis.horizontal,
                           shrinkWrap: true,
-                          itemCount: controller.possibleMorningTime.length,
+                          itemCount: controller.reservationMorningTimeCheck.where((value) => value == true).length,
                           itemBuilder: (BuildContext context, int index) {
                             return Row(
                               children: [
