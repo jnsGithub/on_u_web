@@ -1,15 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:on_u_web/global.dart';
+import 'package:on_u_web/util/counseloInfo.dart';
+import 'package:on_u_web/util/sign.dart';
+import 'package:on_u_web/view/chat/chatView.dart';
 import 'package:on_u_web/view/login/login.dart';
 import 'package:on_u_web/view/mainPage/mainPage.dart';
 import 'package:flutter/gestures.dart';
+import 'package:on_u_web/view/profile/profileController.dart';
+import 'package:on_u_web/view/reservationManagement/reservationManagementView.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'firebase_options.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 
 
+void main() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ko', null);  // 'ko'는 한국어 로케일, 필요에 따라 변경
 
-void main() {
+  if(FirebaseAuth.instance.currentUser != null) {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    uid = prefs.getString('uid') ?? '';
+    Get.put(ProfileController());
+    var controller = Get.find<ProfileController>();
+    controller.counselor = await CounselorInfo().getCounselorInfo(uid);
+
+  }else{
+    Get.put(ProfileController());
+  }
   runApp(const MyApp());
 }
 
@@ -44,6 +71,8 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(name: '/login', page: () => const Login()),
         GetPage(name: '/mainPage', page: () => const MainPage()),
+        GetPage(name: '/reservationManagementView', page: () => const ReservationManagementView()),
+        GetPage(name: '/chatView', page: () => const ChatView()),
         // GetPage(name: '/loginView', page: () => const LoginView()),
         // GetPage(name: '/signUpView', page: () => const SignUpView()),
         // GetPage(name: '/noticeView', page: () => const NoticeView()),

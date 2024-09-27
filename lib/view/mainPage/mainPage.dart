@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:on_u_web/global.dart';
@@ -59,6 +60,10 @@ class MainPage extends GetView<MainController> {
                                 GestureDetector(
                                   onTap: (){
                                     controller.changeMenu(index);
+                                    if(index == 3){
+                                      FirebaseAuth.instance.signOut();
+                                      Get.offAllNamed('/login');
+                                    }
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 30,horizontal: 40),
@@ -95,8 +100,9 @@ class MainPage extends GetView<MainController> {
                   ],
                 ),
               ),
-              Expanded(
-                child: controller.menuWidget[controller.menuIndex.value],
+              Obx(() => Expanded(
+                  child: controller.menuWidget[controller.menuIndex.value],
+                ),
               )
             ],
           ),

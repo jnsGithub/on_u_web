@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:on_u_web/global.dart';
+import 'package:on_u_web/util/counseloInfo.dart';
+import 'package:on_u_web/view/profile/profileController.dart';
 import 'loginController.dart';
 
 
@@ -122,8 +124,19 @@ class Login extends GetView<LoginController> {
                 ],
               ),
               GestureDetector(
-                onTap: () {
-                  Get.toNamed('/mainPage');
+                onTap: () async {
+                  saving(context);
+                  if(await controller.isLogin()){
+                    var controller = Get.find<ProfileController>();
+                    controller.counselor = await CounselorInfo().getCounselorInfo(uid);
+                    Get.toNamed('/mainPage');
+                  }
+                  else{
+                    Get.back();
+                    if(!Get.isSnackbarOpen){
+                      Get.snackbar('로그인 실패', '아이디와 비밀번호를 확인해주세요');
+                    }
+                  }
                   // login(context);
                 },
                 child: Container(

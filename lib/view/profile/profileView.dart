@@ -27,7 +27,11 @@ class Profile extends GetView<ProfileController> {
                       minimumSize: WidgetStatePropertyAll(Size(58, 37)),
                     ),
                       onPressed: (){
-      
+                        var a = controller.possibleMorningTime;
+                        var b = controller.reservationMorning;
+                        var c = controller.possibleAfternoonTime;
+                        var d = controller.reservationAfternoon;
+                        controller.updateCounselorInfo(controller.counselorInfo.convertList(a, b), controller.counselorInfo.convertList(c, d));
                       },
                       child: Text('저장', style: TextStyle(fontSize: 15, color: Colors.white, fontWeight: FontWeight.w500)),),
                 ),
@@ -37,7 +41,11 @@ class Profile extends GetView<ProfileController> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(47)),
                       image: DecorationImage(
-                        image: controller.image.value != null ? MemoryImage(controller.image.value!) : AssetImage('assets/images/profile.png'),
+                        image: controller.image.value != null
+                            ? MemoryImage(controller.image.value!)
+                            : controller.counselor.photoURL != ''
+                            ? NetworkImage(controller.counselor.photoURL)
+                            : AssetImage('images/profile.png') as ImageProvider,
                         fit: BoxFit.fitWidth,
                       ),
                     ),

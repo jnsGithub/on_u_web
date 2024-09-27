@@ -1,0 +1,1 @@
+{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"hosting":{"public":"public","ignore":["firebase.json","**/.*","**/node_modules/**"]},"storage":{"rules":"storage.rules"},"flutter":{"platforms":{"dart":{"lib/firebase_options.dart":{"projectId":"on-u-caec7","configurations":{"web":"1:70825470231:web:ab89118e4805a8e3afef52"}}}}}}
