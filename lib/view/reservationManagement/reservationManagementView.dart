@@ -222,7 +222,7 @@ class ReservationManagementView extends GetView<ReservationManagementController>
                       ),
                       onPressed: (){
                         controller.isReservationExist = !controller.isReservation(controller.selectedDay.value);
-                        controller.holydayDialog(context);
+                        controller.holydayDialog(context, !controller.isHolyDay(controller.selectedDay.value));
                       },
                       child: Text(
                         '휴무일 지정',

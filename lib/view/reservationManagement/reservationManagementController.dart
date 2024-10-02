@@ -62,8 +62,8 @@ class ReservationManagementController extends GetxController {
     return false;
   }
 
-  void setHolyday(DateTime date) async{
-    await counselorInfo.setHolyDate(uid, date);
+  void setHolyday(DateTime date, bool isHolyDay) async{
+    await counselorInfo.setHolyDate(uid, date, isHolyDay);
     counselor = await counselorInfo.getCounselorInfo(uid);
     holyday.value = counselor.holyDate;
     update();
@@ -192,7 +192,7 @@ class ReservationManagementController extends GetxController {
     );
   }
 
-  void holydayDialog(BuildContext context){
+  void holydayDialog(BuildContext context, bool isHolyDay) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -218,7 +218,7 @@ class ReservationManagementController extends GetxController {
                   children: [
                     SizedBox(height: 8),
                     Text(
-                      '해당 일자를 휴무일로 지정하시겠습니까?',
+                      isHolyDay ? '해당 일자를 휴무일로 지정하시겠습니까?' : '해당 휴무일 지정을 취소하시겠습니까?',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -282,7 +282,7 @@ class ReservationManagementController extends GetxController {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              setHolyday(selectedDay.value);
+                              setHolyday(selectedDay.value, isHolyDay);
                               Get.back(); // 확인 버튼 동작 후 다이얼로그 닫기
                             },
                             child: Container(

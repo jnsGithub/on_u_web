@@ -91,11 +91,13 @@ class CounselorInfo{
     return result;
   }
 
-  Future<void> setHolyDate(String uid, DateTime holyDate) async {
+  Future<void> setHolyDate(String uid, DateTime holyDate, bool isHolday) async {
     try {
       print('휴일 설정 중');
       await db.collection('counselor').doc(uid).update({
-        'holyDate': FieldValue.arrayUnion([holyDate]),
+        'holyDate': isHolday ? FieldValue.arrayUnion([holyDate]) : FieldValue.arrayRemove([holyDate]),
+
+
       });
       print('${holyDate}휴일 설정 완료');
     } catch (e) {

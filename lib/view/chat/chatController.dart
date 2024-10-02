@@ -41,17 +41,9 @@ class ChatController extends GetxController {
   RxString name = ''.obs;
 
   RxBool isExist = false.obs;
-  changeExist(){
-    isExist.value = false;
-    isExist.value = searchController.text.isNotEmpty;
-    print(isExist.value);
-    if(searchController.text.isEmpty){
-      update();
-    }
-  }
+
   @override
   void onInit() {
-    searchController.addListener(changeExist);
     super.onInit();
   }
 
