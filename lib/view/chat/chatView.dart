@@ -85,6 +85,7 @@ class ChatView extends GetView<ChatController> {
                             //     .map((element) => element.data())
                             //     .toList().length);
 
+                            controller.item.value = snapshot.data!.docs;
 
                             // if(controller.isExist.value){
                             //   controller.item.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList();
@@ -92,14 +93,15 @@ class ChatView extends GetView<ChatController> {
 
                             return Obx(() => ListView.builder(
                               shrinkWrap: true,
-                              itemCount: controller.isExist.value ?  snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList().length : snapshot.data!.docs.length < controller.selectedIndex.value * 5 + 5 ? snapshot.data!.docs.length % 5 : 5,
+                              itemCount: controller.isExist.value
+                                  ? controller.item.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList().length
+                                  : controller.item.length < controller.selectedIndex.value * 5 + 5 ? controller.item.length % 5 : 5,
                               itemBuilder: (context, index) {
                                 // print(snapshot.data!.docs.where((element) => element.data()['name'].toString().contains(controller.searchController.text)).length);
                                 String name = '';
                                 String companyName = '';
                                 // controller.a(name, companyName, snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']);
                                 // controller.length = controller.item.length;
-                                // controller.item.value = snapshot.data!.docs;
                                 // if(controller.isExist.value){
                                 //   WidgetsBinding.instance.addPostFrameCallback((_) {
                                 //     controller.item.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList();
@@ -107,8 +109,8 @@ class ChatView extends GetView<ChatController> {
                                 // }
 
                                 return FutureBuilder(
-                                  // future: controller.userInfo.getUserInfo(snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']),
-                                  future: controller.userInfo.getUserInfo(controller.isExist.value ? snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index]['userId'] : snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']),
+                                  future: controller.userInfo.getUserInfo(snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']),
+                                  // future: controller.userInfo.getUserInfo(controller.isExist.value ? snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index]['userId'] : snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']),
                                   builder: (context, snapshot2) {
                                     if (!snapshot2.hasData) {
                                       return CircularProgressIndicator();
@@ -124,16 +126,19 @@ class ChatView extends GetView<ChatController> {
                                           // controller.chatRoomName = snapshot2.data!.name;
                                           // controller.chatRoomCompany = snapshot2.data!.companyName;
                                           // controller.chatRoomPhotoUrl = snapshot2.data!.photoURL;
-                                          if(controller.isExist.value){
-                                            controller.selectValue.value = index;
-                                            controller.name.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index]['userId'];
-                                            controller.chatRoomId.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index].id;
-                                          }
-                                          else{
-                                            controller.name.value = snapshot2.data!.name;
-                                            controller.selectValue.value = index;
-                                            controller.chatRoomId.value = snapshot.data!.docs[index + controller.selectedIndex.value * 5].id;
-                                          }
+                                          controller.name.value = snapshot2.data!.name;
+                                          controller.selectValue.value = index;
+                                          controller.chatRoomId.value = snapshot.data!.docs[index + controller.selectedIndex.value * 5].id;
+                                          // if(controller.isExist.value){
+                                          //   controller.selectValue.value = index;
+                                          //   controller.name.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index]['userId'];
+                                          //   controller.chatRoomId.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index].id;
+                                          // }
+                                          // else{
+                                          //   controller.name.value = snapshot2.data!.name;
+                                          //   controller.selectValue.value = index;
+                                          //   controller.chatRoomId.value = snapshot.data!.docs[index + controller.selectedIndex.value * 5].id;
+                                          // }
                                           print('채팅방 아이디 : ${controller.chatRoomId.value}');
                                         },
                                         child: Container(
