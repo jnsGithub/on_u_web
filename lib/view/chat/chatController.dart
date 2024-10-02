@@ -9,6 +9,10 @@ class ChatController extends GetxController {
   var selectedDay = DateTime.now().obs;
   RxBool isExpanded = false.obs;
 
+  RxInt selectedIndex = 0.obs;
+
+  late int length;
+
   final ScrollController scrollController = ScrollController();
 
   RxInt selectValue = (-1).obs;
@@ -16,7 +20,8 @@ class ChatController extends GetxController {
 
   late List<Users> userList;
   late List<ChatRoom> chatRoomList;
-
+  RxList item = [].obs;
+  late ChatRoom chatRoom;
 
   UserInfo userInfo = UserInfo();
   ChatInfo chatInfo = ChatInfo();
@@ -35,8 +40,18 @@ class ChatController extends GetxController {
   }
   RxString name = ''.obs;
 
+  RxBool isExist = false.obs;
+  changeExist(){
+    isExist.value = false;
+    isExist.value = searchController.text.isNotEmpty;
+    print(isExist.value);
+    if(searchController.text.isEmpty){
+      update();
+    }
+  }
   @override
   void onInit() {
+    searchController.addListener(changeExist);
     super.onInit();
   }
 

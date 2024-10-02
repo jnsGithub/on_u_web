@@ -4,6 +4,8 @@ import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:get/get.dart';
 import 'package:on_u_web/global.dart';
+import 'package:on_u_web/models/chatRoom.dart';
+import 'package:on_u_web/models/users.dart';
 import 'package:on_u_web/view/chat/chatController.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -65,113 +67,157 @@ class ChatView extends GetView<ChatController> {
                     child: Column(
                       children: [
                         // TODO : Obx 안쓸거면 지워야함.
-                        Obx(() => StreamBuilder(
-                            stream: FirebaseFirestore.instance.collection('chatRoom').where('counselorId', isEqualTo: uid).orderBy('lastChatDate', descending: true).snapshots(),
-                            builder: (context, snapshot) {
-                              if (!snapshot.hasData) {
-                                // 로딩 중일 때
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              // TODO : 검색 기능 추가 해야함.
-                              if(controller.searchController.text != ''){
-                                snapshot.data!.docs.removeWhere((element) => !element['name'].toString().contains(controller.searchController.text));
-                              }
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: snapshot.data!.docs.length > 5 ? 5 : snapshot.data!.docs.length,
-                                itemBuilder: (context, index) {
-                                  String name = '';
-                                  String companyName = '';
-                                  controller.a(name, companyName, snapshot.data!.docs[index]['userId']);
-                                  print(snapshot.data!.docs[index]['userId']);
+                        StreamBuilder(
+                          stream: FirebaseFirestore.instance.collection('chatRoom').where('counselorId', isEqualTo: uid).orderBy('lastChatDate', descending: true).snapshots(),
+                          builder: (context, snapshot) {
+                            // Map<String, dynamic> data = snapshot.data!.docs[0].data();
+                            // print(data);
+                            // data['documentId'] = snapshot.data!.docs[0].id;
+                            // controller.chatRoom = ChatRoom.fromJson(data);
+                            if (!snapshot.hasData) {
+                              // 로딩 중일 때
+                              return Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            // print(snapshot.data!.docs
+                            //     .where((element) => element.data()['userName'].toString().contains(controller.searchController.text))
+                            //     .map((element) => element.data())
+                            //     .toList().length);
 
-                                  return FutureBuilder(
-                                    future: controller.userInfo.getUserInfo(snapshot.data!.docs[index]['userId']),
-                                    builder: (context, snapshot2) {
-                                      if (!snapshot2.hasData) {
-                                        return CircularProgressIndicator();
-                                      }
-                                      name = snapshot2.data!.name;
-                                      companyName = snapshot2.data!.companyName;
-                                      return Padding(
-                                        padding: const EdgeInsets.only(bottom: 20),
-                                        child: Obx(() => GestureDetector(
-                                          onTap: (){
-                                            // controller.chatRoomId = snapshot.data!.docs[index].id;
-                                            // controller.chatRoomName = snapshot2.data!.name;
-                                            // controller.chatRoomCompany = snapshot2.data!.companyName;
-                                            // controller.chatRoomPhotoUrl = snapshot2.data!.photoURL;
+
+                            // if(controller.isExist.value){
+                            //   controller.item.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList();
+                            // }
+
+                            return Obx(() => ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: controller.isExist.value ?  snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList().length : snapshot.data!.docs.length < controller.selectedIndex.value * 5 + 5 ? snapshot.data!.docs.length % 5 : 5,
+                              itemBuilder: (context, index) {
+                                // print(snapshot.data!.docs.where((element) => element.data()['name'].toString().contains(controller.searchController.text)).length);
+                                String name = '';
+                                String companyName = '';
+                                // controller.a(name, companyName, snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']);
+                                // controller.length = controller.item.length;
+                                // controller.item.value = snapshot.data!.docs;
+                                // if(controller.isExist.value){
+                                //   WidgetsBinding.instance.addPostFrameCallback((_) {
+                                //     controller.item.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList();
+                                //   });
+                                // }
+
+                                return FutureBuilder(
+                                  // future: controller.userInfo.getUserInfo(snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']),
+                                  future: controller.userInfo.getUserInfo(controller.isExist.value ? snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index]['userId'] : snapshot.data!.docs[index + controller.selectedIndex.value * 5]['userId']),
+                                  builder: (context, snapshot2) {
+                                    if (!snapshot2.hasData) {
+                                      return CircularProgressIndicator();
+                                    }
+                                    name = snapshot2.data!.name;
+                                    companyName = snapshot2.data!.companyName;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 20),
+                                      child: Obx(() => GestureDetector(
+                                        onTap: (){
+                                          controller.chatController.clear();
+                                          // controller.chatRoomId = snapshot.data!.docs[index].id;
+                                          // controller.chatRoomName = snapshot2.data!.name;
+                                          // controller.chatRoomCompany = snapshot2.data!.companyName;
+                                          // controller.chatRoomPhotoUrl = snapshot2.data!.photoURL;
+                                          if(controller.isExist.value){
+                                            controller.selectValue.value = index;
+                                            controller.name.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index]['userId'];
+                                            controller.chatRoomId.value = snapshot.data!.docs.where((element) => element.data()['userName'].toString().contains(controller.searchController.text)).toList()[index].id;
+                                          }
+                                          else{
                                             controller.name.value = snapshot2.data!.name;
                                             controller.selectValue.value = index;
-                                            controller.chatRoomId.value = snapshot.data!.docs[index].id;
-                                            print('채팅방 아이디 : ${controller.chatRoomId.value}');
-                                          },
-                                          child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                                              width: 174,
-                                              height: 94,
-                                              decoration: BoxDecoration(
-                                                  color: controller.selectValue.value == index ? mainColor : Colors.white,
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  border: Border.all(width: 1.5, color: gray200)
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Text(name, style: TextStyle(fontSize: 18, color: controller.selectValue.value == index ? Colors.white : Colors.black, fontWeight: FontWeight.w500),),
-                                                      Container()
-                                                    ],
-                                                  ),
-                                                  SizedBox(height: 24,),
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Text(companyName, style: TextStyle(fontSize: 15, color: controller.selectValue.value == index ? Colors.white : Colors.black, fontWeight: FontWeight.w500),),
-                                                      Text('1분전')
-                                                    ],
-                                                  )
-                                                ],
-                                              )
-                                          ),
+                                            controller.chatRoomId.value = snapshot.data!.docs[index + controller.selectedIndex.value * 5].id;
+                                          }
+                                          print('채팅방 아이디 : ${controller.chatRoomId.value}');
+                                        },
+                                        child: Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                            width: 174,
+                                            height: 94,
+                                            decoration: BoxDecoration(
+                                                color: controller.selectValue.value == index ? mainColor : Colors.white,
+                                                borderRadius: BorderRadius.circular(10),
+                                                border: Border.all(width: 1.5, color: gray200)
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(name, style: TextStyle(fontSize: 18, color: controller.selectValue.value == index ? Colors.white : Colors.black, fontWeight: FontWeight.w500),),
+                                                    Container()
+                                                  ],
+                                                ),
+                                                SizedBox(height: 24,),
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text(companyName, style: TextStyle(fontSize: 15, color: controller.selectValue.value == index ? Colors.white : Colors.black, fontWeight: FontWeight.w500),),
+                                                    companyName == '탈퇴한 회원입니다.' ? Container() : Text('1분전')
+                                                  ],
+                                                )
+                                              ],
+                                            )
                                         ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                                      ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                            );
+                          },
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: bgColor
+                            GestureDetector(
+                              onTap: () {
+                                controller.selectValue.value = -1;
+                                if(controller.selectedIndex.value == 0){
+                                  return;
+                                }
+                                controller.selectedIndex.value--;
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: bgColor
+                                ),
+                                child: Icon(Icons.chevron_left),
                               ),
-                              child: Icon(Icons.chevron_left),
                             ),
-                            Text('1/5', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: gray400),),
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: bgColor
+                            Obx(() => Text('${controller.selectedIndex.value + 1}', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: gray400),)),
+                            GestureDetector(
+                              onTap: () {
+                                controller.selectValue.value = -1;
+                                if(controller.length < controller.selectedIndex.value * 5 + 5){
+                                  return;
+                                }
+                                controller.selectedIndex.value++;
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: bgColor
+                                ),
+                                child: Icon(Icons.chevron_right),
                               ),
-                              child: Icon(Icons.chevron_right),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -186,6 +232,7 @@ class ChatView extends GetView<ChatController> {
                     ),
                     child: Scaffold(
                       appBar: AppBar(
+                        automaticallyImplyLeading: false,
                         toolbarHeight: 20,
                         title: Text('새로운 메세지가 도착했습니다.', style: TextStyle(
                             fontSize: 15,
@@ -374,11 +421,27 @@ class ChatView extends GetView<ChatController> {
                                         border: InputBorder.none,
                                         contentPadding: EdgeInsets.only(left: 10),
                                       ),
+                                      onSubmitted: (String value) {
+                                        if(controller.chatController.text != '') {
+                                          controller.sendChat(
+                                              controller.chatRoomId.value,
+                                              controller.chatController.text,
+                                              uid);
+                                          controller.chatController.clear();
+                                        }
+                                      },
                                     ),
                                   ),
                                   IconButton(
                                       onPressed: (){
-                                        controller.sendChat(controller.chatRoomId.value, controller.chatController.text, uid);
+                                        if(controller.chatController.text != '') {
+                                          controller.sendChat(
+                                              controller.chatRoomId.value,
+                                              controller.chatController.text,
+                                              uid);
+                                          controller.chatController.clear();
+                                        }
+                                        controller.selectValue.value = 0;
                                       },
                                       icon: Icon(Icons.send)),
                                 ],
